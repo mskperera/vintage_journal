@@ -61,7 +61,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ token, user: { id: user.id, email: user.email, timezone: user.timezone } });
   } catch (err) {
           console.log('err:', err);
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: err});
   }
 });
 
