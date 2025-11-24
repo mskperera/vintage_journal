@@ -60,6 +60,7 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user: { id: user.id, email: user.email, timezone: user.timezone } });
   } catch (err) {
+          console.log('err:', err);
     res.status(500).json({ error: 'Login failed' });
   }
 });
@@ -75,6 +76,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const token = jwt.sign({ userId: result.insertId, email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user: { id: result.insertId, email, timezone } });
   } catch (err) {
+       console.log('err:', err);
     if (err.code === 'ER_DUP_ENTRY') return res.status(400).json({ error: 'Email already exists' });
     res.status(500).json({ error: 'Signup failed' });
   }
@@ -90,7 +92,7 @@ app.get('/api/entries/dates', authenticate, async (req, res) => {
 
     res.json(dates);
   } catch (err) {
-    
+       console.log('err:', err);
     res.status(500).json({ error: err });
   }
 });
@@ -107,6 +109,7 @@ app.get('/api/entries/:date', authenticate, async (req, res) => {
     conn.release();
     res.json(result[0][0] || null);
   } catch (err) {
+       console.log('err:', err);
     res.status(500).json({ error: 'Failed to load entry' });
   }
 });
@@ -129,6 +132,7 @@ app.post('/api/entries', authenticate, async (req, res) => {
     conn.release();
     res.json({ success: true });
   } catch (err) {
+       console.log('err:', err);
     res.status(500).json({ error: err });
   }
 });
@@ -141,6 +145,7 @@ app.get('/api/export', authenticate, async (req, res) => {
     conn.release();
     res.json(rows);
   } catch (err) {
+       console.log('err:', err);
     res.status(500).json({ error: 'Export failed' });
   }
 });
