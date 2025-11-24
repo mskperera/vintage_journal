@@ -9,7 +9,28 @@ const app = express();
 const PORT = 5000;
 const JWT_SECRET = 'your-super-secret-jwt-key-change-in-production';
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// server.js or wherever you set up CORS
+const allowedOrigins = [
+  'http://localhost:5173',           // Vite dev
+  'https://vintagejournal.legendbyte.com',  // Your real domain
+  'https://www.vintagejournal.legendbyte.com' // Optional: www version
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true  // Important for cookies, auth headers
+}));
+
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // Auth middleware
