@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const customAxios = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_BASE || 'https://vintagejournal.legendbyte.com',
 });
 
 customAxios.interceptors.request.use(
