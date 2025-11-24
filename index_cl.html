@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vintage Reflection Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:400,600i&family=Playfair+Display:wght@700&family=Libre+Baskerville&display=swap" rel="stylesheet">
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+ 
+  <style>
+    :root {
+      --paper: #f9f3e6;
+      --ink: #3e2c1c;
+      --ink-light: #6b5540;
+      --gold: #b89b6a;
+      --shadow: rgba(62,44,28,0.3);
+      --nav-bg: rgba(62,44,28,0.15);
+    }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Libre Baskerville', Georgia, serif;
+      background: linear-gradient(to bottom, #d9c2a3, #f0e6d2);
+      background-attachment: fixed;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="300" height="300" filter="url(%23noise)" opacity="0.15"/></svg>'),
+                  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="90" cy="10" r="3" fill="%23654"/><circle cx="15" cy="85" r="4" fill="%23654"/></svg>');
+      pointer-events: none;
+      z-index: -1;
+    }
+    /* Fixed Top Navbar */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 3px double var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 1000;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--ink);
+      text-shadow: 2px 2px 4px var(--shadow);
+      font-weight: 700;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .btn-nav {
+      background: var(--gold);
+      color: #3e2c1c;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 3px 10px var(--shadow);
+      font-size: 1rem;
+    }
+    .btn-nav:hover { transform: translateY(-2px); }
+
+    /* Help Button in Navbar */
+    .help-btn-nav {
+      background: transparent;
+      color: var(--ink);
+      font-size: 1.6rem;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+    .help-btn-nav:hover { opacity: 1; transform: scale(1.2); }
+
+    /* Avatar Menu */
+    .avatar-menu {
+      position: relative;
+      cursor: pointer;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      box-shadow: 0 4px 15px var(--shadow);
+      object-fit: cover;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: var(--paper);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 1rem;
+      min-width: 180px;
+      z-index: 1001;
+    }
+    .dropdown a {
+      display: block;
+      padding: 0.6rem 1rem;
+      color: var(--ink);
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    .dropdown a:hover { background: rgba(184,155,106,0.3); }
+    .avatar-menu:hover .dropdown { display: block; }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      margin-top: 80px;
+      min-height: calc(100vh - 80px);
+    }
+    /* Book Spine Sidebar */
+    .book-spine {
+      width: 180px;
+      background: linear-gradient(to right, #3e2c1c22, transparent);
+      padding: 2rem 1rem;
+      overflow-y: auto;
+      border-right: 4px double var(--gold);
+      position: fixed;
+      left: 0;
+      top: 70px;
+      bottom: 0;
+      z-index: 999;
+    }
+    .page-item {
+      margin-bottom: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0.9;
+    }
+    .page-item:hover {
+      transform: translateX(8px) scale(1.05);
+      opacity: 1;
+    }
+    .page-item.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    .page-img {
+      width: 120px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(62,44,28,0.4);
+      border: 3px solid var(--gold);
+      margin-bottom: 0.8rem;
+    }
+    .page-date {
+      font-family: 'Crimson Text', serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    /* Journal Area */
+    .journal-area {
+      flex: 1;
+      margin-left: 200px;
+      padding: 2rem;
+      max-width: 1000px;
+    }
+    .journal-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .main-content {
+      background: var(--paper);
+      border-radius: 16px;
+      padding: 3rem;
+      box-shadow: 0 15px 50px var(--shadow);
+      position: relative;
+      border: 8px solid transparent;
+      background-clip: padding-box;
+    }
+    .main-content::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      pointer-events: none;
+    }
+    /* Original Beautiful Label & Section Styling Restored */
+    label {
+      display: block;
+      margin: 2rem 0 0.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 1.15rem;
+    }
+    .section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px dashed var(--ink-light);
+    }
+    .section:last-child { border-bottom: none; }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--ink);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+    /* Fixed & Beautiful Quill Toolbars */
+    .ql-toolbar.ql-snow {
+      border: none !important;
+      border-bottom: 2px solid var(--gold) !important;
+      background: rgba(249,243,230,0.85);
+      border-radius: 8px 8px 0 0;
+      padding: 10px;
+    }
+    .ql-container.ql-snow {
+      border: none !important;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.05rem;
+    }
+    .ql-editor {
+      min-height: 120px;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.5);
+      border-radius: 0 0 8px 8px;
+      line-height: 1.7;
+    }
+    .ql-editor.ql-blank::before {
+      color: #888;
+      font-style: italic;
+    }
+    .ql-snow .ql-stroke { stroke: var(--ink); }
+    .ql-snow .ql-fill { fill: var(--ink); }
+    .ql-snow .ql-picker { color: var(--ink); }
+    .ql-snow.ql-toolbar button:hover,
+    .ql-snow.ql-toolbar button.ql-active,
+    .ql-snow .ql-picker-label:hover {
+      color: var(--gold) !important;
+    }
+    .date-display {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--ink);
+      font-family: 'Crimson Text', serif;
+    }
+    .dark-mode {
+      --paper: #2c2218;
+      --ink: #e8dcc2;
+      --ink-light: #b89b6a;
+      --gold: #d4af37;
+      --nav-bg: rgba(20,15,10,0.7);
+      background: #1a140f;
+    }
+
+    /* Help Popup Styles */
+    #helpOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .help-popup {
+      background: var(--paper);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border: 3px solid var(--gold);
+      position: relative;
+    }
+    .help-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+    .help-close:hover { opacity: 1; }
+    .help-popup h3 {
+      margin-top: 0;
+      color: var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.5rem;
+      font-size: 1.6rem;
+    }
+    .help-popup pre {
+      background: rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="topnav">
+    <div class="brand">
+      <div>Vintage Journal</div>
+      <div style="font-size:10px">A place for honest growth • Est. 2025</div>
+    </div>
+    <div class="nav-right">
+      <span class="help-btn-nav" id="openHelp">?</span>
+      <button class="btn-nav" id="newEntry">✦ New Entry</button>
+      <button class="btn-nav" id="toggleDark">🌙 Dark Mode</button>
+      <div class="avatar-menu">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User&backgroundColor=ffdfbf" alt="User" class="avatar">
+        <div class="dropdown">
+          <a href="#">Profile</a>
+          <a href="#">Settings</a>
+          <a href="#">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Popup -->
+  <div id="helpOverlay">
+    <div class="help-popup">
+      <span class="help-close" id="closeHelp">×</span>
+      <h3>🌿 How to Use This Vintage Reflection Journal</h3>
+      <p><strong>1. Start with the Basics</strong><br>Every entry has a date (auto-filled) and a <strong>Title/Focus</strong> — one word or phrase about today’s theme (e.g., Confidence, Decision Making, Creativity).</p>
+
+      <p><strong>2. Recommended Structure</strong></p>
+      <ul>
+        <li><strong>A. Daily Reflection</strong> – What happened and what it taught you</li>
+        <li><strong>B. Emotional Check</strong> – Honest feelings and triggers</li>
+        <li><strong>C. Gratitude & Pride</strong> – Celebrate yourself</li>
+        <li><strong>D. Forward Planning</strong> – One small step for tomorrow + a mantra</li>
+      </ul>
+
+      <p><strong>3. Tips for Deep Growth</strong><br>• Be completely honest — this journal is for you only<br>• Keep entries short (10–20 minutes) — consistency > perfection<br>• Review past pages weekly to see your progress</p>
+
+      <h3>📖 Example Entry</h3>
+      <pre>
+Date: 19 November 2025 • Wednesday
+Focus: Decision Making
+
+What I Did Today
+• Practiced coding for 2 hours
+• Recorded a short tech video
+• Played drums 30 mins
+
+What Went Well
+• Finished coding task without distraction
+• Felt more comfortable on camera
+
+Challenges / Frustrations
+• Took 20 mins deciding which project to start
+• Anxious about sharing the video
+
+What I Learned
+• Overthinking slows me down
+• Better to choose quickly and adjust later
+
+How I Felt Today
+• Mix of excitement and mild anxiety
+
+Triggers & How I Responded
+• Fear of judgment → delayed posting
+→ Next time: remind myself it’s just practice
+
+Three Things I’m Grateful For
+• Quiet morning focus time
+• My health and energy
+• Having creative outlets
+
+One Thing I’m Proud Of Today
+• I actually recorded the video despite fear
+
+Tomorrow’s Focus
+• Decide projects in under 5 minutes
+
+Mantra / Reminder
+“Progress, not perfection.”
+
+✨ Positive Thought for the Day
+“Every decision I make is a chance to learn.
+I don’t need to be perfect — I just need to keep moving forward.”
+      </pre>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="book-spine" id="pageSpine"></div>
+    <div class="journal-area">
+      <div class="journal-controls">
+        <button class="btn-nav" id="exportData">📥 Export</button>
+        <button class="btn-nav" id="printBtn">🖨️ Print</button>
+      </div>
+      <div class="main-content">
+        <div class="date-display" id="currentDate"></div>
+        <label>Today’s Focus / Title</label>
+        <input type="text" id="focus" placeholder="e.g., Decision Making, Confidence, Music Practice" style="width:100%;padding:0.8rem;font-size:1.4rem;border:none;border-bottom:3px solid var(--gold);background:transparent;margin-bottom:2rem;" />
+        <div class="section"><h2>A. Daily Reflection</h2>
+          <label>What I Did Today</label>
+          <div id="editor-didToday"></div>
+          <label>What Went Well</label>
+          <div id="editor-wentWell"></div>
+          <label>Challenges / Frustrations</label>
+          <div id="editor-challenges"></div>
+          <label>What I Learned</label>
+          <div id="editor-learned"></div>
+        </div>
+        <div class="section"><h2>B. Emotional Check</h2>
+          <label>How I Felt Today</label>
+          <div id="editor-feelings"></div>
+          <label>Triggers & How I Responded</label>
+          <div id="editor-triggers"></div>
+        </div>
+        <div class="section"><h2>C. Gratitude & Pride</h2>
+          <label>Three Things I’m Grateful For</label>
+          <div id="editor-gratitude"></div>
+          <label>One Thing I’m Proud Of Today</label>
+          <div id="editor-proud"></div>
+        </div>
+        <div class="section"><h2>D. Forward Planning</h2>
+          <label>Tomorrow’s Focus</label>
+          <div id="editor-tomorrow"></div>
+          <label>Mantra / Reminder</label>
+          <input type="text" class="mantra" id="mantra" placeholder="“Progress, not perfection.”" style="font-size:1.8rem;text-align:center;width:100%;padding:1.5rem;border:none;background:rgba(184,155,106,0.15);border-radius:12px;margin:1.5rem 0;" />
+        </div>
+        <div class="section"><h2>✨ Positive Thought for the Day</h2>
+          <div id="editor-positiveThought"></div>
+        </div>
+        <div style="text-align:center;margin-top:3rem;">
+          <button class="btn-nav" id="saveBtn" style="font-size:1.3rem;padding:1rem 3rem;">💾 Save Entry</button>
+          <small id="saveStatus" style="display:block;margin-top:1rem;color:green;"></small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script>
+    const STORAGE_KEY = 'vintageJournalEntries';
+    const PAGE_IMG = 'https://clpos.legendbyte.com/api/v1/asset/4e2f310fc380567c97f3475480bb54f5?width=200&height=200&quality=80';
+    const today = new Date();
+    const todayKey = today.toISOString().split('T')[0];
+    function formatDate(date) {
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }).replace(',', ' •');
+    }
+    document.getElementById('currentDate').textContent = formatDate(today);
+
+    const toolbarOptions = [
+      [{ 'header': [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['clean']
+    ];
+    const quillFields = ['didToday','wentWell','challenges','learned','feelings','triggers','gratitude','proud','tomorrow','positiveThought'];
+    const quill = {};
+    quillFields.forEach(f => {
+      quill[f] = new Quill(`#editor-${f}`, {
+        theme: 'snow',
+        modules: { toolbar: toolbarOptions },
+        placeholder: 'Start writing…'
+      });
+    });
+
+    function getAll() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    function saveAll(o) { localStorage.setItem(STORAGE_KEY, JSON.stringify(o)); }
+
+    function renderPages() {
+      const entries = getAll();
+      const container = document.getElementById('pageSpine');
+      container.innerHTML = '';
+      Object.keys(entries).sort((a,b) => b.localeCompare(a)).forEach(date => {
+        const div = document.createElement('div');
+        div.className = 'page-item' + (date === todayKey ? ' active' : '');
+        div.innerHTML = `
+          <img src="${PAGE_IMG}" alt="Page" class="page-img">
+          <div class="page-date">${new Date(date).toLocaleDateString('en-GB', {day:'numeric', month:'short'})}</div>
+        `;
+        div.onclick = () => loadEntry(date);
+        container.appendChild(div);
+      });
+    }
+
+    function loadEntry(date) {
+      const entry = getAll()[date] || {};
+      document.getElementById('focus').value = entry.focus || '';
+      document.getElementById('mantra').value = entry.mantra || '';
+      quillFields.forEach(f => {
+        if (entry[f]) quill[f].root.innerHTML = entry[f];
+        else quill[f].setText('');
+      });
+      document.getElementById('currentDate').textContent = formatDate(new Date(date));
+      renderPages();
+    }
+
+    function saveEntry() {
+      const entries = getAll();
+      const data = {
+        focus: document.getElementById('focus').value.trim(),
+        mantra: document.getElementById('mantra').value,
+        savedAt: new Date().toISOString()
+      };
+      quillFields.forEach(f => data[f] = quill[f].root.innerHTML);
+      entries[todayKey] = data;
+      saveAll(entries);
+      document.getElementById('saveStatus').textContent = 'Saved ✓';
+      setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
+      renderPages();
+    }
+
+    // Help Popup Controls
+    document.getElementById('openHelp').onclick = () => document.getElementById('helpOverlay').style.display = 'flex';
+    document.getElementById('closeHelp').onclick = () => document.getElementById('helpOverlay').style.display = 'none';
+    document.getElementById('helpOverlay').onclick = (e) => { if (e.target === document.getElementById('helpOverlay')) document.getElementById('helpOverlay').style.display = 'none'; };
+
+    document.getElementById('saveBtn').onclick = saveEntry;
+    setInterval(saveEntry, 8000);
+    document.getElementById('newEntry').onclick = () => location.reload();
+    document.getElementById('toggleDark').onclick = () => document.body.classList.toggle('dark-mode');
+    document.getElementById('exportData').onclick = () => {
+      const blob = new Blob([localStorage.getItem(STORAGE_KEY)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'vintage-journal.json'; a.click();
+    };
+    document.getElementById('printBtn').onclick = () => window.print();
+
+    renderPages();
+    loadEntry(todayKey);
+  </script>
+</body>
+</html>

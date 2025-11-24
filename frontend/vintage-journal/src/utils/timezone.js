@@ -1,0 +1,1 @@
+export const getUserTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;

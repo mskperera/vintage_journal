@@ -1,0 +1,327 @@
+
+ :root {
+      --paper: #f9f3e6;
+      --ink: #3e2c1c;
+      --ink-light: #6b5540;
+      --gold: #b89b6a;
+      --shadow: rgba(62,44,28,0.3);
+      --nav-bg: rgba(62,44,28,0.15);
+    }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Libre Baskerville', Georgia, serif;
+      background: linear-gradient(to bottom, #d9c2a3, #f0e6d2);
+      background-attachment: fixed;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="300" height="300" filter="url(%23noise)" opacity="0.15"/></svg>'),
+                  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="90" cy="10" r="3" fill="%23654"/><circle cx="15" cy="85" r="4" fill="%23654"/></svg>');
+      pointer-events: none;
+      z-index: -1;
+    }
+    /* Fixed Top Navbar */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 3px double var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 1000;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--ink);
+      text-shadow: 2px 2px 4px var(--shadow);
+      font-weight: 700;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .btn-nav {
+      background: var(--gold);
+      color: #3e2c1c;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 3px 10px var(--shadow);
+      font-size: 1rem;
+    }
+    .btn-nav:hover { transform: translateY(-2px); }
+
+    /* Help Button in Navbar */
+    .help-btn-nav {
+      background: transparent;
+      color: var(--ink);
+      font-size: 1.6rem;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+    .help-btn-nav:hover { opacity: 1; transform: scale(1.2); }
+
+    /* Avatar Menu */
+    .avatar-menu {
+      position: relative;
+      cursor: pointer;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      box-shadow: 0 4px 15px var(--shadow);
+      object-fit: cover;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: var(--paper);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 1rem;
+      min-width: 180px;
+      z-index: 1001;
+    }
+    .dropdown a {
+      display: block;
+      padding: 0.6rem 1rem;
+      color: var(--ink);
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    .dropdown a:hover { background: rgba(184,155,106,0.3); }
+    .avatar-menu:hover .dropdown { display: block; }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      margin-top: 80px;
+      min-height: calc(100vh - 80px);
+    }
+    /* Book Spine Sidebar */
+    .book-spine {
+      width: 180px;
+      background: linear-gradient(to right, #3e2c1c22, transparent);
+      padding: 2rem 1rem;
+      overflow-y: auto;
+      border-right: 4px double var(--gold);
+      position: fixed;
+      left: 0;
+      top: 70px;
+      bottom: 0;
+      z-index: 999;
+    }
+    .page-item {
+      margin-bottom: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0.9;
+    }
+    .page-item:hover {
+      transform: translateX(8px) scale(1.05);
+      opacity: 1;
+    }
+    .page-item.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    .page-img {
+      width: 120px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(62,44,28,0.4);
+      border: 3px solid var(--gold);
+      margin-bottom: 0.8rem;
+    }
+    .page-date {
+      font-family: 'Crimson Text', serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    /* Journal Area */
+    .journal-area {
+      flex: 1;
+      margin-left: 200px;
+      padding: 2rem;
+      max-width: 1000px;
+    }
+    .journal-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .main-content {
+      background: var(--paper);
+      border-radius: 16px;
+      padding: 3rem;
+      box-shadow: 0 15px 50px var(--shadow);
+      position: relative;
+      border: 8px solid transparent;
+      background-clip: padding-box;
+    }
+    .main-content::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      pointer-events: none;
+    }
+    /* Original Beautiful Label & Section Styling Restored */
+    label {
+      display: block;
+      margin: 2rem 0 0.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 1.15rem;
+    }
+    .section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px dashed var(--ink-light);
+    }
+    .section:last-child { border-bottom: none; }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--ink);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+    /* Fixed & Beautiful Quill Toolbars */
+    .ql-toolbar.ql-snow {
+      border: none !important;
+      border-bottom: 2px solid var(--gold) !important;
+      background: rgba(249,243,230,0.85);
+      border-radius: 8px 8px 0 0;
+      padding: 10px;
+    }
+    .ql-container.ql-snow {
+      border: none !important;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.05rem;
+    }
+    .ql-editor {
+      min-height: 120px;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.5);
+      border-radius: 0 0 8px 8px;
+      line-height: 1.7;
+    }
+    .ql-editor.ql-blank::before {
+      color: #888;
+      font-style: italic;
+    }
+    .ql-snow .ql-stroke { stroke: var(--ink); }
+    .ql-snow .ql-fill { fill: var(--ink); }
+    .ql-snow .ql-picker { color: var(--ink); }
+    .ql-snow.ql-toolbar button:hover,
+    .ql-snow.ql-toolbar button.ql-active,
+    .ql-snow .ql-picker-label:hover {
+      color: var(--gold) !important;
+    }
+    .date-display {
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--ink);
+      font-family: 'Crimson Text', serif;
+    }
+    .dark-mode {
+      --paper: #2c2218;
+      --ink: #e8dcc2;
+      --ink-light: #b89b6a;
+      --gold: #d4af37;
+      --nav-bg: rgba(20,15,10,0.7);
+      background: #1a140f;
+    }
+
+    /* Help Popup Styles */
+    #helpOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .help-popup {
+      background: var(--paper);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      border: 3px solid var(--gold);
+      position: relative;
+    }
+    .help-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+    .help-close:hover { opacity: 1; }
+    .help-popup h3 {
+      margin-top: 0;
+      color: var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.5rem;
+      font-size: 1.6rem;
+    }
+    .help-popup pre {
+      background: rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    @keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
